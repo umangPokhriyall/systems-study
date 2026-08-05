@@ -1,0 +1,5 @@
+[toolchain]
+# Pinned so that a committed results CSV is attributable to an exact compiler.
+# Bump deliberately, and re-take any measurement whose comparison spans the bump.
+channel = "1.95.0"
+components = ["rustfmt", "clippy"]

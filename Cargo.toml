@@ -1,0 +1,17 @@
+[workspace]
+resolver = "3"
+members = [
+    "rung-01-kvm/toy-kvm-raw",
+    "rung-01-kvm/toy-kvm-crates",
+]
+
+[workspace.package]
+edition = "2024"
+license = "Apache-2.0"
+repository = "https://github.com/umangpokhriyal/systems-study"
+
+# Release profile is used for every measuring run. Debug assertions stay on in dev builds so that
+# the correctness mode of each binary is as strict as possible; measurements are only ever taken
+# from a release build, and the binaries refuse to report timings otherwise.
+[profile.release]
+debug = true          # keep line tables and symbols so perf can attribute samples

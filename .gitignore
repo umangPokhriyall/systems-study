@@ -1,0 +1,15 @@
+/target
+**/target
+
+# perf artefacts: large, host-specific, and unreadable without the exact binary.
+# Commit the folded stack file (small, diffable) or the referenced SVG instead.
+perf.data
+perf.data.old
+*.perf
+*.folded.gz
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
+.DS_Store

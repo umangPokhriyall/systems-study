@@ -1,0 +1,11 @@
+[package]
+name = "toy-kvm-raw"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "A minimal x86-64 VMM built directly on /dev/kvm ioctls, with no virtualization crates."
+
+[dependencies]
+# libc and nothing else, on purpose. Every ioctl number in this crate is computed from the
+# kernel's _IOC encoding rather than imported, so that the ABI is visible rather than assumed.
+libc = "0.2"
