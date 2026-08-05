@@ -3,6 +3,8 @@ resolver = "3"
 members = [
     "rung-01-kvm/toy-kvm-raw",
     "rung-01-kvm/toy-kvm-crates",
+    "rung-02-virtio/toy-virtq-raw",
+    "rung-02-virtio/toy-virtq-crates",
 ]
 
 [workspace.package]
