@@ -1,0 +1,73 @@
+captured: 2026-08-05T06:58:30+05:30
+host:     umang-Inspiron-3501
+
+== kernel ==
+Linux 7.0.0-28-generic #28-Ubuntu SMP PREEMPT_DYNAMIC Sun Jun 21 01:01:36 UTC 2026 x86_64 GNU/Linux
+cmdline: BOOT_IMAGE=/boot/vmlinuz-7.0.0-28-generic root=UUID=dccae04f-e5a0-46eb-b43f-e8da72950d01 ro quiet splash crashkernel=2G-4G:320M,4G-32G:512M,32G-64G:1024M,64G-128G:2048M,128G-:4096M
+PRETTY_NAME="Ubuntu 26.04 LTS"
+
+== cpu ==
+CPU(s): 8
+Model name: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+Thread(s) per core: 2
+Core(s) per socket: 4
+Socket(s): 1
+CPU(s) scaling MHz: 89%
+CPU max MHz: 4200.0000
+CPU min MHz: 400.0000
+Flags: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm cons
+Virtualization: VT-x
+NUMA node(s): 1
+
+== topology ==
+CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE    MAXMHZ   MINMHZ       MHZ
+  0    0      0    0 0:0:0:0          yes 4200.0000 400.0000  822.2380
+  1    0      0    1 1:1:1:0          yes 4200.0000 400.0000  914.5320
+  2    0      0    2 2:2:2:0          yes 4200.0000 400.0000  399.0360
+  3    0      0    3 3:3:3:0          yes 4200.0000 400.0000 2051.0349
+  4    0      0    0 0:0:0:0          yes 4200.0000 400.0000 3591.9150
+  5    0      0    1 1:1:1:0          yes 4200.0000 400.0000  400.0000
+  6    0      0    2 2:2:2:0          yes 4200.0000 400.0000  400.1950
+  7    0      0    3 3:3:3:0          yes 4200.0000 400.0000  399.8280
+
+== numa ==
+available: 1 nodes (0)
+node 0 cpus: 0 1 2 3 4 5 6 7
+node 0 size: 7151 MB
+node 0 free: 277 MB
+node distances:
+node     0 
+   0:   10 
+
+== frequency-and-thermal ==
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor = powersave
+/sys/devices/system/cpu/intel_pstate/no_turbo = 0
+note: an unpinned governor and active turbo mean the tail of any distribution below
+      includes frequency transitions. That is a property of the machine, not an error.
+
+== perf-access ==
+kernel.perf_event_paranoid = 1
+kernel.kptr_restrict       = 1
+
+== memory ==
+               total        used        free      shared  buff/cache   available
+Mem:           7.0Gi       3.5Gi       271Mi       684Mi       4.2Gi       3.5Gi
+transparent_hugepage = always [madvise] never
+
+== kvm ==
+crw-rw----+ 1 root kvm 10, 232 Aug  5 06:49 /dev/kvm
+readable-writable by this user: yes
+kvm_intel loaded
+/sys/module/kvm_intel/parameters/nested = Y
+/sys/module/kvm_intel/parameters/unrestricted_guest = Y
+
+== load ==
+ 06:58:30 up  2:10,  1 user,  load average: 0.17, 0.21, 0.20
+note: a non-idle machine inflates the tail. Record it rather than retrying until quiet.
+
+== toolchain ==
+rustc 1.95.0 (59807616e 2026-04-14)
+cargo 1.95.0 (f2d3ce0bd 2026-03-21)
+
+== repository ==
+b6f78e63c1f2ab7e5d897505a608aaca419ba36c

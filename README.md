@@ -26,7 +26,7 @@ runs; it is finished when the comprehension gate is passed and the artifact is c
 
 | Rung | Subsystem | Gap it closes | Artifact | Status |
 |---|---|---|---|---|
-| [1](rung-01-kvm/) | KVM: `/dev/kvm`, vCPU run loop, VM exits | No KVM experience at all | Two toy VMMs (raw ioctls, then `kvm-ioctls`) + a vmexit cost distribution | **complete** |
+| [1](rung-01-kvm/) | KVM: `/dev/kvm`, vCPU run loop, VM exits | No KVM experience at all | Two toy VMMs (raw ioctls, then `kvm-ioctls`) + a vmexit cost distribution | code and measurement done; **gate not yet taken** |
 | [2](rung-02-virtio/) | virtio: virtqueues, descriptor chains, `EVENT_IDX` | No virtqueue experience | Descriptor-chain consumer on `virtio-queue`'s mock framework + a written descriptor-lifecycle map | not started |
 | [3](rung-03-uffd/) | `userfaultfd`: demand paging, fault servicing | No `userfaultfd`, no VM-scale memory management | Fault-cost microbenchmark, including the cross-core placement delta | not started |
 | [4](rung-04-subsystem-maps/) | Reading real VMM code with a purpose | Never read a production VMM | One written subsystem map per target area | not started |

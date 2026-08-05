@@ -83,3 +83,10 @@ cheap and it removes the single most common source of a false result on a shared
 Do not report a difference smaller than the run-to-run variation of the same configuration measured
 twice. Measure that variation first; it is the noise floor, and it is what a p-value would have been
 approximating.
+
+A worked example is in [`../rung-01-kvm/README.md`](../rung-01-kvm/README.md#the-noise-floor-which-is-the-actual-result):
+three identical runs of 200,000 samples each agreed on p50 to within 0.5% and disagreed on p99 by
+39%. Collecting more samples per run would not have narrowed that, because the variance was between
+runs rather than within them - which is the case whenever the noise source is the machine rather
+than the measurement. Reporting one run's p99 as a property of the system would have been wrong by
+40%, and nothing inside that run would have revealed it.

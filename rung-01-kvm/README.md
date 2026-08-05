@@ -285,36 +285,61 @@ copy-on-write snapshot and would read a stale `exit_reason` forever.
 what a laptop number may and may not be used for. Environment manifest:
 [`results/env-umang-Inspiron-3501-2026-08-05.txt`](results/). Machine: Intel i5-1135G7 (Tiger Lake),
 4 cores / 8 threads, one NUMA node, `powersave` governor with turbo enabled, Linux 7.0.0,
-`unrestricted_guest = Y`. Release build. 200,000 samples.
+`unrestricted_guest = Y`, `perf_event_paranoid = 1`. Release build from commit `b6f78e6`, clean tree.
 
 ### Cost of one userspace-handled VM exit
 
-| | ns |
-|---|---:|
-| timer overhead (two `Instant::now()`) | 16 |
-| min | 1,553 |
-| **p50** | **1,599** |
-| p90 | 1,737 |
-| p99 | 2,380 |
-| p99.9 | 4,346 |
-| max | 124,003 |
+Three runs of the *same* configuration, back to back. Three rather than one because the first thing
+worth knowing about a measurement is how much it moves when nothing changes - that is the noise
+floor, and without it no later comparison means anything.
 
-Raw samples: [`results/vmexit-cost-umang-Inspiron-3501-2026-08-05.csv`](results/).
+| | run 1 | run 2 | run 3 | spread |
+|---|---:|---:|---:|---:|
+| timer overhead (two `Instant::now()`) | 16 | 16 | 15 | - |
+| min | 1,562 | 1,545 | 1,572 | 1.7% |
+| **p50** | **1,610** | **1,618** | **1,610** | **0.5%** |
+| p90 | 1,748 | 1,763 | 1,625 | 8% |
+| p99 | 2,316 | 2,462 | 1,774 | 39% |
+| p99.9 | 4,235 | 5,768 | 3,529 | 63% |
+| max | 121,206 | 232,853 | 78,755 | 3.0× |
 
-### Reading these numbers
+All in nanoseconds. 200,000 samples per run. Raw samples:
+[`results/vmexit-cost-umang-Inspiron-3501-2026-08-05-run{1,2,3}.csv`](results/), summarised with
+[`../tools/summarise.py`](../tools/summarise.py).
 
-- **Timer overhead is 1% of the median.** Stated rather than subtracted; at this ratio it does not
-  change any conclusion, and subtracting it would make the numbers slightly less honest.
+### The noise floor, which is the actual result
+
+On this machine, in this configuration:
+
+- **p50 is trustworthy to about 1%.** Three independent runs landed on 1,610 / 1,618 / 1,610 ns.
+- **p90 is trustworthy to about 10%.**
+- **p99 is trustworthy to about 40%, and p99.9 to no better than a factor of 1.6.**
+- **The max is noise.** It varied by 3× across runs and is one sample in 200,000.
+
+So a change to this VMM that moved p50 by less than ~2%, or p99 by less than ~40%, would not be
+detectable here no matter how many samples were collected - the variance is between runs, not within
+them. Collecting more samples per run would not help; it would only make each run's own tail
+estimate more confidently wrong about the next run. That is a limitation of the *machine*, and the
+fix is a quiet, pinned, fixed-frequency host, not a bigger `n`.
+
+Reporting a single run's p99 as though it were a property of the system would have been the easiest
+mistake available here, and it would have been wrong by 40%.
+
+### Reading the numbers themselves
+
+- **Timer overhead is 1% of the median.** Stated rather than subtracted; at this ratio it changes no
+  conclusion, and subtracting it would make the numbers slightly less honest.
 - **p50 ≈ 1.6 µs.** At a nominal 2.4 GHz that is roughly 3,800 cycles for a round trip whose guest
-  side is a single one-byte instruction. Essentially all of it is the transition itself and the
-  syscall return path, not work.
-- **The body of the distribution is tight** (p90 only 9% above p50) **and the tail is not**: p99.9
-  is 2.7× the median and the max is 78× it. On an unpinned laptop with an active desktop that is
-  expected - those samples are scheduler preemption and frequency transitions, not variance in the
-  exit path. This is exactly the shape that a mean would have flattened into a single misleading
-  number, and exactly why the raw samples are committed.
-- **The max is not a finding.** It is one sample out of 200,000 on a machine that was not quiet.
-  Reporting it anyway is the point: hiding it would be the choice that required justification.
+  side is one single-byte instruction. Essentially none of it is work. How that splits between the
+  hardware transition and Linux is open question
+  [Q2](../docs/OPEN-QUESTIONS.md#q2---how-much-of-the-1600-ns-is-the-hardware-transition-and-how-much-is-linux)
+  and is not claimed here.
+- **The body is tight and the tail is not.** p90 sits ~8% above p50 while p99.9 is 2-3.5× it. On an
+  unpinned laptop running a desktop, those tail samples are scheduler preemption and frequency
+  transitions, not variance in the exit path. This is exactly the shape a mean would have flattened
+  into one misleading number, and exactly why the raw samples are committed rather than a summary.
+- **The maxima are reported anyway.** They are facts about the machine, not findings about KVM.
+  Deleting them would be the choice that required justification.
 
 ### What this number is for
 
