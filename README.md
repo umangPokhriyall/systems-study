@@ -27,7 +27,7 @@ runs; it is finished when the comprehension gate is passed and the artifact is c
 | Rung | Subsystem | Gap it closes | Artifact | Status |
 |---|---|---|---|---|
 | [1](rung-01-kvm/) | KVM: `/dev/kvm`, vCPU run loop, VM exits | No KVM experience at all | Two toy VMMs (raw ioctls, then `kvm-ioctls`) + a vmexit cost distribution | code and measurement done; **gate not yet taken** |
-| [2](rung-02-virtio/) | virtio: virtqueues, descriptor chains, `EVENT_IDX` | No virtqueue experience | Descriptor-chain consumer on `virtio-queue`'s mock framework + a written descriptor-lifecycle map | not started |
+| [2](rung-02-virtio/) | virtio: virtqueues, descriptor chains, `EVENT_IDX` | No virtqueue experience | A split virtqueue by hand (both halves), the same device on `virtio-queue`, walk cost + suppression counts, and a bug found upstream | code and measurement done; **gate not yet taken** |
 | [3](rung-03-uffd/) | `userfaultfd`: demand paging, fault servicing | No `userfaultfd`, no VM-scale memory management | Fault-cost microbenchmark, including the cross-core placement delta | not started |
 | [4](rung-04-subsystem-maps/) | Reading real VMM code with a purpose | Never read a production VMM | One written subsystem map per target area | not started |
 | [5](rung-05-review-log/) | Upstream review culture | No upstream contribution history | A log of merged PRs read, and what the maintainer objected to | not started |
@@ -45,6 +45,9 @@ If you have limited time and want to judge whether the work is real:
    lines that boot a real-mode guest with nothing but `libc` and hand-encoded ioctl numbers.
 3. Read the results section of [`rung-01-kvm/README.md`](rung-01-kvm/README.md#results) - the cost
    of a VM exit on this machine, reported as a distribution rather than a mean.
+4. Read [`rung-02-virtio/README.md` §4](rung-02-virtio/README.md#4-what-was-found-on-the-way-a-bug-in-virtio-queues-mock-framework) -
+   a layout bug in `virtio-queue`'s test framework, found by making two implementations disagree,
+   with a reproducer and a fix.
 
 If you are here to check the reasoning rather than the code, read
 [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md), which is the measurement standard every number in this

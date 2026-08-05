@@ -41,8 +41,33 @@ Terms defined once, linked from the rung documents. Only terms this repository a
 - **Environment manifest** - the machine description that must accompany every committed
   measurement. See [`METHODOLOGY.md`](METHODOLOGY.md).
 
+**Rung 2 - virtio**
+
+- **Virtqueue** - three rings in shared memory plus two doorbells. Not an object: an agreement about
+  the meaning of bytes at three addresses.
+- **Descriptor table** - a *pool* of `(addr, len, flags, next)` entries, 16 bytes each. Not ordered
+  and not consumed in order.
+- **Descriptor chain** - a linked list through the table's `next` fields, forming one logical
+  request. Entirely guest-written, so entirely untrusted.
+- **Available ring** - driver to device. Carries the *head index* of each chain to process, plus
+  `used_event` at its end.
+- **Used ring** - device to driver. Carries `(head_index, bytes_written)` per completion, plus
+  `avail_event` at its end.
+- **Free-running counter** - `avail.idx` and `used.idx`: total entries ever published, never reset,
+  wrapping at 65,536. Slot for entry `i` is `ring[i % queue_size]`.
+- **`used_event` / `avail_event`** - thresholds each side publishes for the other. A field lives in
+  the ring written by whoever writes the field.
+- **`EVENT_IDX`** - the negotiated feature making those thresholds meaningful. Its whole logic is
+  `need_event(event, new, old) = (new - event - 1) < (new - old)`, in wrapping `u16`, used
+  identically in both directions.
+- **Kick / doorbell** - driver to device notification. In a real guest an MMIO or port I/O store,
+  hence one VM exit, hence ~1,610 ns on this machine.
+- **Split versus packed virtqueue** - split is the three-ring layout above; packed (VIRTIO 1.1)
+  folds them into one array with a wrap counter, for cache reasons. Cloud Hypervisor and Firecracker
+  use split for the devices this study targets.
+- **Indirect descriptor** (`VIRTQ_DESC_F_INDIRECT`) - a descriptor whose buffer is itself a
+  descriptor table, letting a chain exceed the queue size. Not implemented in rung 2.
+
 **To be filled in by later rungs**
 
-Rung 2 will add: virtqueue, descriptor chain, available ring, used ring, `EVENT_IDX`, feature
-negotiation, split versus packed queues. Rung 3 will add: `userfaultfd`, `UFFDIO_COPY`, demand
-paging, prefaulting, postcopy.
+Rung 3 will add: `userfaultfd`, `UFFDIO_COPY`, demand paging, prefaulting, postcopy.
