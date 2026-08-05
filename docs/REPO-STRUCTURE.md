@@ -101,6 +101,12 @@ contributes toward upstream work.
 | Flame graphs, `perf` output | `rung-NN-*/results/` | **SVG committed only when it is referenced from prose.** `perf.data` is **gitignored** - it is large, host-specific and unreadable without the exact binary. | The folded stack file, which is small and diffable, is committed instead when a rung needs one. | Differential flame graphs are the standard evidence format for an optimization patch. Producing them habitually is the difference between "it got faster" and a reviewable claim. |
 | Anything binary and large | - | **Gitignored.** Regeneration instructions go in the rung README instead. | - | A repository a maintainer can clone in seconds is one they will actually look at. |
 
+On size: raw sample files are large on disk (rung 1's three runs are 13 MB) and small in git (the
+whole history is 2.2 MB), because columns of similar integers compress well. The policy stays "commit
+the raw samples" until a clone stops being cheap. The review point at which that changes is a rung
+whose results do not compress - a folded stack file or an SVG - and the answer there is to commit
+one referenced artefact rather than a series.
+
 ### Deliberately absent
 
 - **No `benches/` using `criterion`.** Criterion's model is repeated short measurements of a
