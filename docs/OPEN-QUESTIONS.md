@@ -103,3 +103,49 @@ shuffled descriptor indices, plus `perf stat -e cycles,instructions,cache-misses
 **Status:** open. It matters because if the walk is latency-bound on a dependent chain, then
 descriptor layout is a real optimization axis, and that is the kind of finding that turns into an
 upstream patch rather than a note.
+
+---
+
+## Q7 - Should the `userfaultfd` crate fall back to the syscall when `/dev/userfaultfd` is unreadable?
+
+**Raised by:** rung 3. `UffdBuilder::create()` prefers `/dev/userfaultfd` (Linux 6.1+) and falls
+back to `userfaultfd(2)` only when the device does **not exist**. When it exists but is not readable
+by the calling process - `crw------- root root`, which is the Ubuntu 26.04 default - the crate
+returns `OpenDevUserfaultfd(EACCES)` and gives up, even though the syscall with
+`UFFD_USER_MODE_ONLY` succeeds on the same machine in the same process.
+
+The crate documents the behaviour in a comment, so it is a decision rather than an oversight. My
+reading is that the two paths are independently gated - the device by its file permissions, the
+syscall by `vm.unprivileged_userfaultfd` - so refusing the syscall does not enforce the device's
+access control; it declines a path the kernel had already allowed. But I do not know what the
+maintainers were protecting against, and there may be a reason that is not in the comment.
+
+**Would be answered by:** the pull request and discussion that introduced `/dev/userfaultfd` support
+in the crate, and by checking what Firecracker's handler process does today - it runs deliberately
+unprivileged, which is exactly the configuration that hits this.
+
+**Status:** open. This is a *behaviour* question rather than a defect, so the right first move is an
+issue asking why, not a patch. Reproducer and workaround are in
+`rung-03-uffd/toy-uffd-crates/src/main.rs`.
+
+---
+
+## Q8 - How much of the cross-core fault cost is C-state exit specifically?
+
+**Raised by:** rung 3 §3.1. A handler parked in `poll` on a different physical core costs ~5,220 ns
+per fault; the same handler spinning costs ~3,510 ns. The ~1,700 ns difference is attributed to
+waking the handler's CPU, corroborated by `cpuidle` usage counters showing ~49,000 `C1_ACPI` entries
+(1 µs exit) and ~630 `C2_ACPI` entries (253 µs exit) across 102,400 faults.
+
+But the spinning control changes **two** things at once: the handler no longer sleeps, *and* the
+scheduler is no longer involved in waking it. I cannot currently separate idle-exit latency from
+wakeup/IPI/scheduler cost.
+
+**Would be answered by:** exercise 10 - pin an unrelated busy thread to the handler's core so it
+never idles, and re-run the `poll` configurations. If idle exit is the whole story, those numbers
+should converge on the spinning numbers without the handler spinning. Failing that,
+`perf stat -e power:cpu_idle` or `cpuidle` residency deltas per configuration.
+
+**Status:** open, and it matters: "keep the handler core warm" and "put the handler where wakeups are
+cheap" are different pieces of advice with different costs, and the current data supports the
+conjunction rather than either one.
