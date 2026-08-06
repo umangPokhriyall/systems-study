@@ -81,9 +81,13 @@ cargo build --workspace
 cargo test  --workspace
 ```
 
-Rung 1 needs access to `/dev/kvm` on an x86-64 Linux host with hardware virtualization enabled. The
-tests that require it skip themselves cleanly (rather than fail) when it is unavailable, so the
-workspace still builds and tests on a machine without KVM.
+Rung 1 needs access to `/dev/kvm` on an x86-64 Linux host with hardware virtualization enabled, and
+rung 3 needs `userfaultfd` (which on a stock distribution means `UFFD_USER_MODE_ONLY`, handled
+automatically). Tests requiring either skip themselves cleanly rather than failing when it is
+unavailable, so the workspace still builds and tests in a container or on a machine without KVM.
+
+Two tests in rung 2 are `#[ignore]`d because they demonstrate an upstream bug and therefore fail on
+purpose. Run them with `cargo test -p toy-virtq-crates --test mock_layout -- --ignored`.
 
 ## License
 
