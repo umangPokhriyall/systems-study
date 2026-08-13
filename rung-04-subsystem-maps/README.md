@@ -1,6 +1,15 @@
 # Rung 4 - reading production code, with a written map each
 
-**Not started.** Placeholder, so the repository structure is visible before the content exists.
+**In progress.** Item 1 of the reading list below is written.
+
+## What is here
+
+- [`cloud-hypervisor-block-io-study.md`](cloud-hypervisor-block-io-study.md) - Cloud Hypervisor's
+  block I/O path from the virtio-blk device model down to the AIO and io_uring backends, written
+  against upstream `1af93ac70` (2026-08-11). Covers the production request path, the `AsyncIo`
+  abstraction, both backends from first principles, why the existing AIO drain benchmark cannot be
+  copied line-for-line for io_uring, and the `performance-metrics` harness. Ends with the
+  comprehension gates for the proposed OSS-0 contribution.
 
 ## What will land here
 
